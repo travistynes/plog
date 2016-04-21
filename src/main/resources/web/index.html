@@ -1,0 +1,51 @@
+<html>
+<head>
+    <title>PLog</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    
+    <!-- Link in stylesheets -->
+    <link rel="stylesheet" type="text/css" href="js/jquery-ui-1.11.4.custom/jquery-ui.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/styles.css"/>
+    
+    <!-- Link scripts -->
+    <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/plog.js"></script>
+</head>
+<body>
+    <div id="title">PLog</div>
+    <div id="options">
+        Log level
+        <input type="radio" name="log_level" value="all" checked>All
+        <input type="radio" name="log_level" value="info">Info
+        <input type="radio" name="log_level" value="warn">Warn
+        <input type="radio" name="log_level" value="debug">Debug
+        <input type="radio" name="log_level" value="error">Error
+        <span style="white-space: pre;">   |   </span>
+        From <input id="fromDate" type="text" size="10" />
+        <span style="white-space: pre;"> </span>
+        To <input id="toDate" type="text" size="10" />
+        <span style="white-space: pre;">   |   </span>
+        Logger <input id="loggerSearchBox" type="text" maxlength="25" size="5" placeholder="All" />
+        <span style="white-space: pre;">   |   </span>
+        Real time<input id="tail" type="checkbox">
+    </div>
+    <div id="realtimeStatusbar">Real time log watch is enabled. New messages will appear as they occur.</div>
+    <div id="logBox">
+        <table id="logTable" border="0" cellpadding="0" cellspacing="0">
+            <thead>
+                <tr><th>Time</th><th>Level</th><th>Logger</th><th>Message</th></tr>
+            </thead>
+            <tbody>
+                <tr><td class="ts">2016-04-20 7:16:43.299 AM</td><td class="INFO">INFO</td><td>main</td><td class="message">plog.PLog.main(PLog.java:79) - Message 2</td></tr>
+                <tr><td class="ts">2016-04-20 7:15:02.835 AM</td><td class="WARN">WARN</td><td>main</td><td class="message">plog.PLog.main(PLog.java:77) - Warning, this is message 75</td></tr>
+                <tr><td class="ts">2016-04-20 7:14:57.849 AM</td><td class="DEBUG">DEBUG</td><td>main</td><td class="message">plog.PLog.main(PLog.java:69) - Message 73. This is a debug log message.</td></tr>
+                <tr><td class="ts">2016-04-20 7:15:15.361 AM</td><td class="ERROR">ERROR</td><td>trace</td><td class="message">plog.PLog.main(PLog.java:74) - Message 80. Error!
+  java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+    java.lang.Integer.parseInt(Integer.java:447)
+      plog.PLog.main(PLog.java:72)</td></tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

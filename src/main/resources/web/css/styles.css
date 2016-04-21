@@ -1,0 +1,88 @@
+body {
+    margin: 0px;
+    border: solid 1px #929292;
+}
+
+#title {
+    padding: 15px;
+    text-align: center;
+    font-size: medium;
+    font-weight: bold;
+    color: #000000;
+    background-color: #F7FFDA;
+    border-bottom: solid 1px #929292;
+}
+
+#options {
+    padding: 2px;
+    font-size: small;
+    background-color: #FFFEEB;
+    border-bottom: solid 1px #929292;
+}
+
+/* There is no button currently. This example shows how to style <button id="submitButton">Submit</button> for reference. */
+#submitButton {
+    font-size: smaller;
+    background-color: #F1F1F1;
+    border-radius: 2px; /* rounded border */
+    border: solid 1px #000000;
+}
+
+#realtimeStatusbar {
+    padding: 0px;
+    text-align: center;
+    font-size: small;
+    font-weight: bold;
+    background-color: #AFFF7C;
+    border-bottom: solid 1px #929292;
+    display: none; /* Hide initially */
+}
+
+#logTable {
+    width: 100%;
+    table-layout: auto;
+    border: solid 0px #929292;
+    display: none; /* Hide initially */
+}
+
+#logTable th,
+#logTable td
+{
+    padding: 1px;
+    font-size: small;
+    vertical-align: top;
+    border-left: 1px solid #888888;
+    border-bottom: 1px solid #888888;
+    white-space: nowrap; /* Don't wrap text to new line */
+}
+
+#logTable th {
+    color: #000000;
+    background-color: #F7F7F7;
+}
+
+#logTable td.message {
+    width: 100%;
+    white-space: pre-wrap; /* Wrap text and preserve new lines, spaces, and tabs in this cell. */
+}
+
+#logTable td.ts {
+    color: #FFFFFF;
+    background-color: #33444A;
+}
+
+#logTable td.info {
+    background-color: #BCFFA0;
+}
+
+#logTable td.warn {
+    background-color: #FDFF9C;
+}
+
+#logTable td.error {
+    background-color: #FF9191;
+}
+
+#logTable td.debug {
+    background-color: #5BDCD0;
+}
