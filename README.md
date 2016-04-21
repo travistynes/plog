@@ -7,9 +7,9 @@ PLog is a Java logging library.
 - Easy to view logs in the browser at http://localhost:50001/plog/
 
 
-# How to use
+### How to use
 
-'''java
+```java
 import plog.PLog;
 
 public static void main(String[] args) {
@@ -23,17 +23,20 @@ public static void main(String[] args) {
     
     PLog.Shutdown();
 }
-'''
+```
 
 
-# Build
+### Build
 
 Build with Gradle. Cd into the project directory and type:
 
-'''
+```
 $ gradle
-'''
+```
 
 The jar will be created for use in your project at build/libs.
+
+
+### Free to use
 
 This code is free to use for any purpose.
