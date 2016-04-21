@@ -57,7 +57,7 @@ The jar will be created for use in your project at build/libs.
 
 PLog is thread safe. You can log as many messages from as many threads as you want. PLog internally queues log messages and writes them to the database in a single thread using transactions.
 
-I have tested with a very large amount of concurrent logging and have not been able to break or slow down PLog. It is very fast.
+I have tested with a very large amount of concurrent logging and have not been able to break or even slow it down.
 
 **Why PLog.Shutdown()**
 
