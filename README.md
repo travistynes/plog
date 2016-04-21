@@ -45,7 +45,7 @@ You can create any number of loggers with any name you choose. The log can then 
 
 **Build**
 
-Build with Gradle. Cd into the project directory and type:
+You will need to update the gradle.properties file to point to your JDK. After that, build with Gradle. Cd into the project directory and type:
 
 ```
 $ gradle
@@ -57,7 +57,9 @@ The jar will be created for use in your project at build/libs.
 
 PLog is thread safe. You can log as many messages from as many threads as you want. PLog internally queues log messages and writes them to the database in a single thread using transactions.
 
-I have tested with a very large amount of concurrent logging and have not been able to break or even slow it down.
+I have tested with a very large amount of concurrent logging resulting in over 100,000 inserts per transaction and have not been able to break or even slow it down.
+
+One limitation: If you are going to write such an absurd amount of logs, or select a large date range of data, an out of memory error will occur when trying to select such a large number of messages. PLog does not currently impose a select limit. I may handle this issue at some point.
 
 **Why PLog.Shutdown()**
 

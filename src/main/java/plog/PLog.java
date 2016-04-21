@@ -61,24 +61,24 @@ public class PLog {
     
     public static void main(String[] args) throws Exception {
         final java.util.Random ran = new java.util.Random();
-        final PLog log1 = new PLog("main");
-        final PLog log2 = new PLog("trace");
+        final PLog log = new PLog("main");
+        final PLog trace = new PLog("trace");
         
-        for(int a = 0; a < 100; a++) {
+        for(int a = 0; a < 1000; a++) {
             double i = Math.random();
             if(i < .05) {
-                log1.debug("Message " + a + ". This is a debug log message.");
+                log.debug("Message " + a + ". This is a debug log message.");
             } else if(i < .2) {
                 try {
                     Integer.parseInt("a", 10); // Generate an error.
                 } catch(Exception e) {
-                    log1.error("Message " + a + ". Error!");
-                    log2.error("Oops (message " + a + ")", e);
+                    log.error("Message " + a + ". Error!");
+                    trace.error("Oops (message " + a + ")", e);
                 }
             } else if(i < .3) {
-                log1.warn("Warning, this is message " + a);
+                log.warn("Warning, this is message " + a);
             } else {
-                log1.info("Message " + a);
+                log.info("Message " + a);
             }
             
             Thread.sleep(2500);
@@ -245,6 +245,7 @@ public class PLog {
                                 for(Message m : msgs) {
                                     Q.put(m);
                                 }
+                                totalMessages -= count;
                                 System.out.println(count + " messages added back to queue.");
                             } finally {
                                 // Cleanup.

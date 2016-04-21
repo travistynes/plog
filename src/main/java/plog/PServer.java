@@ -55,7 +55,7 @@ public class PServer {
             server.createContext(contextRoot, new HttpHandler() {
                 public void handle(HttpExchange exchange) {
                     try {
-                        // Request request.
+                        // Get request.
                         String requestBody = IOUtils.toString(exchange.getRequestBody(), "UTF-8");
                         String method = exchange.getRequestMethod();
                         URI uri = exchange.getRequestURI();
@@ -172,7 +172,8 @@ public class PServer {
             
             c = PLog.GetLogConnection();
             
-            String sql = "select ts, level, logger, message from log where datetime(ts, 'localtime') >= ? and datetime(ts, 'localtime') <= ? and level like ? and logger like ? order by ts desc";
+            // Query statement. Sort rows by ts desc. If ts is not unique, further sort by special column rowid desc (see: https://www.sqlite.org/autoinc.html)
+            String sql = "select ts, level, logger, message from log where datetime(ts, 'localtime') >= ? and datetime(ts, 'localtime') <= ? and level like ? and logger like ? order by ts desc, rowid desc";
             s = c.prepareStatement(sql);
             
             s.setString(1, from);
