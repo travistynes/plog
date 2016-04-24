@@ -1,5 +1,6 @@
 // Global namespace object.
 var P = {};
+P.direction = "left";
 
 // Called on window load.
 P.load = function() {
@@ -11,8 +12,8 @@ P.load = function() {
 
 P.setup = function() {
     // If the hostname is not "", it is running on a server. Clear the sample/test rows.
-    if(!location.hostname === "") {
-        var t = $("#logTable tbody tr").remove();
+    if(location.hostname !== "") {
+        $("#logTable tbody tr").remove();
     }
     
     // Show the log table. It's hidden so the above test rows aren't visible briefly on page load.
@@ -22,6 +23,14 @@ P.setup = function() {
     $("#options input[type='radio'][name='log_level']").change(function() {
         // A log level radio button was clicked.
         P.optionChanged();
+    });
+    
+    // Setup logger search box change handler.
+    $("#loggerSearchBox").keyup(function() {
+
+        // Clear a pending log refresh, and reschedule. This prevents refresh on rapid key presses.
+        clearTimeout(P.loggerSearchBoxChangeTimeoutID);
+        P.loggerSearchBoxChangeTimeoutID = setTimeout(P.optionChanged, 500);
     });
     
     // Setup realtime (tail) checkbox change handler.
@@ -42,32 +51,43 @@ P.setup = function() {
         }
     });
     
-    // Setup datepickers.
-    $("#fromDate").val($.datepicker.formatDate("yy-mm-dd", new Date())); // Default to today.
-    $("#fromDate").datepicker({
-        dateFormat: "yy-mm-dd",
-        defaultDate: new Date(),
-        autoClose: true,
-        onSelect: function(dt, picker) {
-            P.optionChanged();
+    // Setup timestamp search field.
+    $("#ts").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")); // Now.
+    $("#ts").keyup(function(e) {
+        if(e.key === "Enter") {
+            // User pressed enter. Query logs for entered timestamp, desc order.
+            P.direction = "left";
+            P.getLogs();
         }
     });
     
-    $("#toDate").val($.datepicker.formatDate("yy-mm-dd", new Date(new Date().getTime() + (1000 * 60 * 60 * 24)))); // Default to tomorrow.
-    $("#toDate").datepicker({
-        dateFormat: "yy-mm-dd",
-        defaultDate: new Date(),
-        autoClose: true,
-        onSelect: function(dt, picker) {
-            P.optionChanged();
+    // Setup browse left/right buttons.
+    $("#browseLeft").click(function() {
+        if($("#logTable tbody tr").length > 0) {
+            // Set timestamp field to the last ts in the current result set.
+            var ts = $("#logTable tbody tr td.ts").last().text();
+            $("#ts").val(ts);
         }
+        
+        // Set the search direction
+        P.direction = "left";
+        
+        // Query the database.
+        P.getLogs();
     });
     
-    // Setup logger search box change handler.
-    $("#loggerSearchBox").keyup(function() {
-        // Clear a pending log refresh, and reschedule. This prevents refresh on rapid key presses.
-        clearTimeout(P.loggerSearchBoxChangeTimeoutID);
-        P.loggerSearchBoxChangeTimeoutID = setTimeout(P.optionChanged, 500);
+    $("#browseRight").click(function() {
+        if($("#logTable tbody tr").length > 0) {
+            // Set timestamp field to the first ts in the current result set.
+            var ts = $("#logTable tbody tr td.ts").first().text();
+            $("#ts").val(ts);
+        }
+        
+        // Set the search direction
+        P.direction = "right";
+        
+        // Query the database.
+        P.getLogs();
     });
 };
 
@@ -82,11 +102,18 @@ P.optionChanged = function() {
 
 // Requests logs based on user selections.
 P.getLogs = function() {
+    // Check if tail is enabled.
+    if($("#tail").is(":checked")) {
+        // Set search values.
+        $("#ts").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")); // Now.
+        P.direction = "left";
+    }
+    
     // Get selections.
     var level = $("#options input[type='radio'][name='log_level']:checked").val();
-    var from = $("#fromDate").val();
-    var to = $("#toDate").val();
     var logger = $("#loggerSearchBox").val().trim() || "all"; // If the value is "", send "all".
+    var ts = $("#ts").val();
+    var direction = P.direction;
     
     $.ajax({
         method: "GET",
@@ -94,13 +121,19 @@ P.getLogs = function() {
         timeout: 15000, // millis
         data: {
             level: level,
-            from: from,
-            to: to,
-            logger: logger
+            logger: logger,
+            ts: encodeURI(ts),
+            direction: direction
         }
     }).done(function(data) {
         // Success
         var messages = JSON.parse(data);
+        
+        if(direction === "right") {
+            // Messages are in asc order, but we want to view them desc.
+            messages.reverse();
+        }
+        
         P.showLogs(messages);
     }).fail(function(jqXHR, textStatus, errorThrown) {
         // Fail
@@ -111,6 +144,7 @@ P.getLogs = function() {
         
         if(tail) {
             // Tail is enabled. Schedule a log refresh.
+            clearTimeout(P.tailTimeoutID); // To be safe, clear any pending refresh.
             P.tailTimeoutID = setTimeout(P.getLogs, 1000);
         }
     });

@@ -4,12 +4,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     
     <!-- Link in stylesheets -->
-    <link rel="stylesheet" type="text/css" href="js/jquery-ui-1.11.4.custom/jquery-ui.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
     
     <!-- Link scripts -->
     <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
-    <script type="text/javascript" src="js/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/moment.min.js"></script>
     <script type="text/javascript" src="js/plog.js"></script>
 </head>
 <body>
@@ -22,11 +21,11 @@
         <input type="radio" name="log_level" value="debug">Debug
         <input type="radio" name="log_level" value="error">Error
         <span style="white-space: pre;">   |   </span>
-        From <input id="fromDate" type="text" size="10" />
-        <span style="white-space: pre;"> </span>
-        To <input id="toDate" type="text" size="10" />
-        <span style="white-space: pre;">   |   </span>
         Logger <input id="loggerSearchBox" type="text" maxlength="25" size="5" placeholder="All" />
+        <span style="white-space: pre;">   |   </span>
+        <span id="browseLeft"><<</span>
+        <input id="ts" type="text" maxlength="23" size="13" placeholder="Now" />
+        <span id="browseRight">>></span>
         <span style="white-space: pre;">   |   </span>
         Real time<input id="tail" type="checkbox">
     </div>

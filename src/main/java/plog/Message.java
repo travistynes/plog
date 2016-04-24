@@ -23,7 +23,7 @@ public class Message {
     
     static {
         // Set the format of the timestamp string, and timezone to UTC.
-        df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
     

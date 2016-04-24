@@ -8,7 +8,7 @@ PLog is a Java logging library.
 
 **Purpose**
 
-PLog was created because I wanted a simple way to immediately begin logging in my applications with no setup, especially during early development and in one-off applications. I also prefer database backed logs for SQL based querying rather than a plain text file approach.
+PLog was created because I wanted a simple way to quickly begin logging - and easily watch those logs - in my applications with no setup, especially during early development and in one-off applications. I also prefer database backed logs for SQL querying rather than plain text files.
 
 PLog runs its own HTTP server and provides a web interface to query the database with a number of filter options. If you need more, you can get the database file and work with it directly in SQL.
 
@@ -55,16 +55,14 @@ The jar will be created for use in your project at build/libs.
 
 PLog is thread safe. You can log as many messages from as many threads as you want. PLog internally queues log messages and writes them to the database in a single thread using transactions.
 
-I have tested with a very large amount of concurrent logging resulting in over 100,000 inserts per transaction and have not been able to break or even slow it down.
-
-One limitation: When selecting a large amount of data through the web interface, an out of memory error can occur. PLog does not currently impose a select limit or provide pagination for large data sets.
+I have tested with a very large amount of concurrent logging (over 100,000 inserts per transaction) and have not been able to break or even slow it down.
 
 **Why PLog.Shutdown()**
 
-PLog is designed to handle a large number of log messages quickly. To do that it queues and writes messages to the database in a separate thread. This is very fast.
+PLog is designed to handle a large number of log messages quickly. To do that it queues and writes messages to the database in a separate thread.
 In a longer running application your log messages will safely be written to the database.
 
-You don't *have* to call PLog.Shutdown(), but if your application logs a message and immediately terminates, you will probably lose that message. Calling shutdown just waits for a few milliseconds for any remaining messages to be processed.
+You don't *have* to call PLog.Shutdown(), but if your application logs a message and immediately terminates, you will probably lose that message. Calling shutdown just waits on the queue (typically a few milliseconds) to finish processing any remaining messages.
 
 **Free to use**
 

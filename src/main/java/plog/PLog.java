@@ -64,7 +64,7 @@ public class PLog {
         final PLog log = new PLog("main");
         final PLog trace = new PLog("trace");
         
-        for(int a = 0; a < 1000; a++) {
+        for(int a = 0; a < 1000000; a++) {
             double i = Math.random();
             if(i < .05) {
                 log.debug("Message " + a + ". This is a debug log message.");
@@ -81,7 +81,7 @@ public class PLog {
                 log.info("Message " + a);
             }
             
-            Thread.sleep(2500);
+            Thread.sleep(1000);
         }
         
         PLog.Shutdown();
@@ -293,7 +293,7 @@ public class PLog {
             s.executeUpdate();
             
             // Create index.
-            s = c.prepareStatement("create index if not exists idx_ts_level on log ( ts, level )");
+            s = c.prepareStatement("create index if not exists idx_ts_level_logger on log ( ts, level, logger )");
             s.executeUpdate();
             s = c.prepareStatement("create index if not exists idx_logger on log ( logger )");
             s.executeUpdate();

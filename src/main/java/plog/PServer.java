@@ -3,6 +3,7 @@ package plog;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.URLDecoder;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
@@ -14,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -116,9 +118,15 @@ public class PServer {
                                 System.out.println("Not found: /web/" + rel);
                             }
                         }
-                    } catch(IOException e) {
-                        // Exception can occur when trying to send response.
-                        throw new RuntimeException(e);
+                    } catch(Exception e) {
+                        try {
+                            // Something has gone wrong. Try to send back a 500 server error response.
+                            int responseCode = 500;
+                            int responseLength = 0;
+                            exchange.getResponseHeaders().set("content-type", "text/html; charset=utf-8");
+                            exchange.sendResponseHeaders(responseCode, responseLength);
+                            IOUtils.write("Error: " + e.toString(), exchange.getResponseBody(), "UTF-8");
+                        } catch(IOException ex) {}
                     } finally {
                         IOUtils.closeQuietly(exchange.getRequestBody());
                         IOUtils.closeQuietly(exchange.getResponseBody());
@@ -147,13 +155,18 @@ public class PServer {
         }
     }
     
+    /*
+    Query log database based on user parameters.
+    If the result set is too large, the application will crash with java.lang.OutOfMemoryError: Java heap space.
+    To prevent this, the user can only retrieve a fixed amount of rows per request.
+    */
     private List<Message> getLogs(Map<String, String> query) {
         // Specify the format and timezone (utc) of the timestamp string as it is stored in the database.
-        DateFormat dfIn = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        DateFormat dfIn = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         dfIn.setTimeZone(TimeZone.getTimeZone("UTC"));
         
         // Specify the format and timezone that we want to display the timestamp as.
-        DateFormat dfOut = new SimpleDateFormat("yyyy-MM-dd h:mm:ss.S a");
+        DateFormat dfOut = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         dfOut.setTimeZone(TimeZone.getDefault());
         
         Connection c = null;
@@ -163,24 +176,34 @@ public class PServer {
         try {
             // Get query parameters.
             String log_level = query.get("level");
-            String from = query.get("from");
-            String to = query.get("to");
             String logger_name = query.get("logger");
+            String timestamp = URLDecoder.decode(query.get("ts"), "UTF-8");
+            String direction = query.get("direction");
             
             if(log_level.equalsIgnoreCase("all")) { log_level = "%"; }
             if(logger_name.equalsIgnoreCase("all")) { logger_name = "%"; }
             
+            String order = "desc";
+            String comparator = "<=";
+            
+            if(direction.equalsIgnoreCase("right")) {
+                comparator = ">=";
+                order = "asc";
+            }
+            
+            int limit = 50; // Maximum rows to fetch. Without this limit, a large result set will cause an OOM error.
+            
             c = PLog.GetLogConnection();
             
-            // Query statement. Sort rows by ts desc. If ts is not unique, further sort by special column rowid desc (see: https://www.sqlite.org/autoinc.html)
-            String sql = "select ts, level, logger, message from log where datetime(ts, 'localtime') >= ? and datetime(ts, 'localtime') <= ? and level like ? and logger like ? order by ts desc, rowid desc";
+            // Query statement.
+            String sql = "select rowid, ts, level, logger, message from log where ts " + comparator + " strftime('%Y-%m-%d %H:%M:%f', ?, 'utc') and level like ? and logger like ? order by ts " + order + " limit " + limit;
             s = c.prepareStatement(sql);
             
-            s.setString(1, from);
-            s.setString(2, to);
-            s.setString(3, log_level + "%");
-            s.setString(4, logger_name + "%");
+            s.setString(1, timestamp);
+            s.setString(2, log_level + "%");
+            s.setString(3, logger_name + "%");
             
+            // Submit query.
             rs = s.executeQuery();
             
             List<Message> messages = new ArrayList<Message>();
