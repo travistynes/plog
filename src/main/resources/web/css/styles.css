@@ -1,16 +1,18 @@
 body {
     margin: 0px;
+    font-family: sans-serif;
     border: solid 1px #929292;
 }
 
 #title {
     padding: 15px;
     text-align: center;
+    font-family: monospace;
     font-size: medium;
     font-weight: bold;
-    color: #000000;
-    background-color: #F7FFDA;
-    border-bottom: solid 1px #929292;
+    color: #113E3A;
+    background-color: #B5BB9E;
+    border-bottom: solid 1px #2F2F2F;
 }
 
 #options {
@@ -18,6 +20,17 @@ body {
     font-size: small;
     background-color: #FFFEEB;
     border-bottom: solid 1px #929292;
+}
+
+#options .pageBrowse {
+    padding-left: 2px;
+    padding-right: 2px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #2698A5;
+    background-color: #E4E4E4;
+    border-radius: 2px; /* rounded border */
+    border: 1px solid #636363;
 }
 
 /* There is no button currently. This example shows how to style <button id="submitButton">Submit</button> for reference. */
@@ -67,8 +80,13 @@ body {
 }
 
 #logTable td.ts {
+    cursor: pointer;
     color: #FFFFFF;
     background-color: #33444A;
+}
+
+#logTable td.ts_hover {
+    color: #0CE7FF;
 }
 
 #logTable td.info {

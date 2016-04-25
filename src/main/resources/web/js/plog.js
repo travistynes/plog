@@ -1,6 +1,6 @@
 // Global namespace object.
 var P = {};
-P.direction = "left";
+P.page = 1;
 
 // Called on window load.
 P.load = function() {
@@ -32,9 +32,9 @@ P.setup = function() {
         P.loggerSearchBoxChangeTimeoutID = setTimeout(P.optionChanged, 500);
     });
     
-    // Sort order list.
+    // Sort order selection.
     $("#sortOrder").change(function() {
-        P.getLogs();
+        P.optionChanged();
     });
     
     // Setup realtime (tail) checkbox change handler.
@@ -47,7 +47,7 @@ P.setup = function() {
             // Hide realtime status bar.
             $("#realtimeStatusbar").hide();
         } else {
-            // Tail was enabled. Request logs.
+            // Tail was enabled.
             P.getLogs();
             
             // Show realtime status bar.
@@ -59,36 +59,30 @@ P.setup = function() {
     $("#ts").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")); // Now.
     $("#ts").keyup(function(e) {
         if(e.keyCode === 13) {
-            // User pressed enter. Query log >= the entered timestamp.
-            P.direction = "right";
-            P.getLogs();
+            // User pressed enter.
+            P.optionChanged();
         }
+    });
+    
+    // Range selection.
+    $("#range").change(function() {
+        P.optionChanged();
     });
     
     // Setup browse left/right buttons.
     $("#browseLeft").click(function() {
-        if($("#logTable tbody tr").length > 0) {
-            // Set timestamp field to the last ts in the current result set.
-            var ts = $("#logTable tbody tr td.ts").last().text();
-            $("#ts").val(ts);
+        if(P.page > 1) {
+            // Decrease page number.
+            P.page--;
+            
+            // Query the database.
+            P.getLogs();
         }
-        
-        // Set the search direction
-        P.direction = "left";
-        
-        // Query the database.
-        P.getLogs();
     });
     
     $("#browseRight").click(function() {
-        if($("#logTable tbody tr").length > 0) {
-            // Set timestamp field to the first ts in the current result set.
-            var ts = $("#logTable tbody tr td.ts").first().text();
-            $("#ts").val(ts);
-        }
-        
-        // Set the search direction
-        P.direction = "right";
+        // Increase the page number.
+        P.page++;
         
         // Query the database.
         P.getLogs();
@@ -101,6 +95,9 @@ P.optionChanged = function() {
     var tail = $("#tail").is(":checked");
     if(tail) { return; }
     
+    // Reset the page number.
+    P.page = 1;
+    
     P.getLogs();
 }
 
@@ -108,17 +105,29 @@ P.optionChanged = function() {
 P.getLogs = function() {
     // Check if tail is enabled.
     if($("#tail").is(":checked")) {
-        // Set search values.
+        // Setup search values for realtime query.
+        P.page = 1;
+        $("#sortOrder").val("DESC");
+        $("#range").val("-1_hours");
         $("#ts").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")); // Now.
-        P.direction = "left";
     }
     
     // Get selections.
     var level = $("#options input[type='radio'][name='log_level']:checked").val();
     var logger = $("#loggerSearchBox").val().trim() || "all"; // If the value is "", send "all".
-    var ts = $("#ts").val();
-    var direction = P.direction;
     var order = $("#sortOrder").val();
+    
+    // Set from, to timestamps.
+    var range = $("#range").val().split("_");
+    var amount = parseInt(range[0], 10);
+    var a = moment($("#ts").val());
+    var b = a.clone().add(amount, range[1]);
+    var from = a;
+    var to = b;
+    if(a > b) {
+        from = b;
+        to = a;
+    }
     
     $.ajax({
         method: "GET",
@@ -127,9 +136,10 @@ P.getLogs = function() {
         data: {
             level: level,
             logger: logger,
-            ts: encodeURI(ts),
-            direction: direction,
-            order: order
+            from: encodeURI(from.format("YYYY-MM-DD HH:mm:ss.SSS")),
+            to: encodeURI(to.format("YYYY-MM-DD HH:mm:ss.SSS")),
+            order: order,
+            page: P.page
         }
     }).done(function(data) {
         // Success
@@ -169,6 +179,25 @@ P.showLogs = function(messages) {
         
         t.append(row);
     }
+    
+    // Setup timestamp column hover handlers.
+    $("#logTable tbody tr td.ts").hover(function() {
+        // Hover over.
+        $(this).addClass("ts_hover");
+    },
+    function() {
+        // Hover off.
+        $(this).removeClass("ts_hover");
+    });
+    // Setup timestamp column click handlers.
+    $("#logTable tbody tr td.ts").click(function() {
+        // Set the timestamp text field to the value of the selected timestamp.
+        var ts = $(this).text();
+        $("#ts").val(ts);
+        
+        // Submit.
+        P.optionChanged();
+    });
 };
 
 // Load event handler fired when all DOM objects, images, and scripts are loaded.

@@ -32,14 +32,24 @@ public static void main(String[] args) {
 }
 ```
 
+You can create any number of loggers with any name you choose. The log can then be filtered based on the logger name to see only those messages sent to that specific logger.
+
+**plog.db**
+
+The database file will be created at plog/plog.db in your application directory. If you want to configure the log directory, create plog.properties in your application root directory with this line:
+
+```
+LOG_DIR=./my/log/path
+```
+
+This would create the log file in your application directory at my/log/path/plog.db
+
 With sqlite3 you can access the database and query the log table directly:
 
 ```
 $ sqlite3 plog.db
 > select * from log;
 ```
-
-You can create any number of loggers with any name you choose. The log can then be filtered based on the logger name to see only those messages sent to that specific logger.
 
 **Build**
 

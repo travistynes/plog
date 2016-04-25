@@ -3,7 +3,7 @@ apply plugin: "application" // Use with 'gradle run' to compile and run applicat
 apply plugin: "distribution" // Use with 'gradle distZip'
 mainClassName = "plog.PLog"
 
-version = "0.1"
+version = "0.2"
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 

@@ -4,6 +4,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -13,6 +14,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
@@ -25,6 +27,7 @@ http://localhost:50001/plog/
 The logs are stored in a SQLite database.
 */
 public class PLog {
+    private static final Properties properties = new Properties();
     private static String LOG_DIR = "./plog"; // Log directory for database file.
     protected static String LOG_NAME = "plog"; // Log name. Will be used as the database name and context root for requests.
     
@@ -40,8 +43,24 @@ public class PLog {
     */
     static {
         try {
-            // Create log directory in case it doesn't exist.
-            new File(LOG_DIR).mkdir();
+            // Load application properties, if exists.
+            InputStream is = new FileInputStream("./plog.properties");
+            PLog.properties.load(is);
+            is.close();
+            
+            // Set log directory from property file.
+            String dir = PLog.properties.getProperty("LOG_DIR");
+            if(dir != null) {
+                PLog.LOG_DIR = dir;
+                System.out.println("Using PLog.LOG_DIR=" + dir);
+            }
+        } catch(Exception e) {
+            System.out.println("Couldn't load plog.properties.");
+        }
+        
+        try {
+            // Create log directory (recursively) in case it doesn't exist.
+            new File(PLog.LOG_DIR).mkdirs();
             
             // Setup the database if it hasn't been created.
             SetupDatabase();
@@ -61,6 +80,7 @@ public class PLog {
     
     public static void main(String[] args) throws Exception {
         final java.util.Random ran = new java.util.Random();
+        
         final PLog log = new PLog("main");
         final PLog trace = new PLog("trace");
         

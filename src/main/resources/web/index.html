@@ -12,7 +12,7 @@
     <script type="text/javascript" src="js/plog.js"></script>
 </head>
 <body>
-    <div id="title">PLog</div>
+    <div id="title">PLog v0.2</div>
     <div id="options">
         Log level
         <input type="radio" name="log_level" value="all" checked>All
@@ -25,12 +25,22 @@
         <span style="white-space: pre;">   |   </span>
         <select id="sortOrder">
             <option value="ASC">ASC</option>
-            <option value9="DESC">DESC</option>
+            <option value="DESC" selected>DESC</option>
         </select>
         <span style="white-space: pre;">   |   </span>
-        <span id="browseLeft"><<</span>
-        <input id="ts" type="text" maxlength="23" size="17" placeholder="Now" />
-        <span id="browseRight">>></span>
+        <button id="browseLeft" class="pageBrowse"><<</button>
+        <input id="ts" type="text" maxlength="23" size="23" placeholder="Now" />
+        <select id="range">
+            <option value="-1_days">-1 day</option>
+            <option value="-6_hours">-6 hours</option>
+            <option value="-1_hours" selected>-1 hour</option>
+            <option value="-5_minutes">-5 minutes</option>
+            <option value="5_minutes">+5 minutes</option>
+            <option value="1_hours">+1 hour</option>
+            <option value="6_hours">+6 hours</option>
+            <option value="1_days">+1 day</option>
+        </select>
+        <button id="browseRight" class="pageBrowse">>></button>
         <span style="white-space: pre;">   |   </span>
         Real time<input id="tail" type="checkbox">
     </div>

@@ -177,30 +177,27 @@ public class PServer {
             // Get query parameters.
             String log_level = query.get("level");
             String logger_name = query.get("logger");
-            String timestamp = URLDecoder.decode(query.get("ts"), "UTF-8");
-            String direction = query.get("direction");
+            String from = URLDecoder.decode(query.get("from"), "UTF-8");
+            String to = URLDecoder.decode(query.get("to"), "UTF-8");
             String order = query.get("order");
+            int page = Integer.parseInt(query.get("page"), 10);
             
             if(log_level.equalsIgnoreCase("all")) { log_level = "%"; }
             if(logger_name.equalsIgnoreCase("all")) { logger_name = "%"; }
             
-            String comparator = "<=";
-            
-            if(direction.equalsIgnoreCase("right")) {
-                comparator = ">=";
-            }
-            
-            int limit = 20; // Maximum rows to fetch. Without this limit, a large result set will cause an OOM error.
+            int limit = 50; // Maximum rows to fetch. Without this limit, a large result set will cause an OOM error and crash.
+            int offset = (page - 1) * limit;
             
             c = PLog.GetLogConnection();
             
             // Query statement.
-            String sql = "select rowid, ts, level, logger, message from log where ts " + comparator + " strftime('%Y-%m-%d %H:%M:%f', ?, 'utc') and level like ? and logger like ? order by ts " + order + " limit " + limit;
+            String sql = "select rowid, ts, level, logger, message from log where ts >= strftime('%Y-%m-%d %H:%M:%f', ?, 'utc') and ts <= strftime('%Y-%m-%d %H:%M:%f', ?, 'utc') and level like ? and logger like ? order by ts " + order + " limit " + limit + " offset " + offset;
             s = c.prepareStatement(sql);
             
-            s.setString(1, timestamp);
-            s.setString(2, log_level + "%");
-            s.setString(3, logger_name + "%");
+            s.setString(1, from);
+            s.setString(2, to);
+            s.setString(3, log_level + "%");
+            s.setString(4, logger_name + "%");
             
             // Submit query.
             rs = s.executeQuery();
