@@ -179,19 +179,18 @@ public class PServer {
             String logger_name = query.get("logger");
             String timestamp = URLDecoder.decode(query.get("ts"), "UTF-8");
             String direction = query.get("direction");
+            String order = query.get("order");
             
             if(log_level.equalsIgnoreCase("all")) { log_level = "%"; }
             if(logger_name.equalsIgnoreCase("all")) { logger_name = "%"; }
             
-            String order = "desc";
             String comparator = "<=";
             
             if(direction.equalsIgnoreCase("right")) {
                 comparator = ">=";
-                order = "asc";
             }
             
-            int limit = 50; // Maximum rows to fetch. Without this limit, a large result set will cause an OOM error.
+            int limit = 20; // Maximum rows to fetch. Without this limit, a large result set will cause an OOM error.
             
             c = PLog.GetLogConnection();
             

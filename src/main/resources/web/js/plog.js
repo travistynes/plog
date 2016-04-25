@@ -27,10 +27,14 @@ P.setup = function() {
     
     // Setup logger search box change handler.
     $("#loggerSearchBox").keyup(function() {
-
         // Clear a pending log refresh, and reschedule. This prevents refresh on rapid key presses.
         clearTimeout(P.loggerSearchBoxChangeTimeoutID);
         P.loggerSearchBoxChangeTimeoutID = setTimeout(P.optionChanged, 500);
+    });
+    
+    // Sort order list.
+    $("#sortOrder").change(function() {
+        P.getLogs();
     });
     
     // Setup realtime (tail) checkbox change handler.
@@ -54,9 +58,9 @@ P.setup = function() {
     // Setup timestamp search field.
     $("#ts").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")); // Now.
     $("#ts").keyup(function(e) {
-        if(e.key === "Enter") {
-            // User pressed enter. Query logs for entered timestamp, desc order.
-            P.direction = "left";
+        if(e.keyCode === 13) {
+            // User pressed enter. Query log >= the entered timestamp.
+            P.direction = "right";
             P.getLogs();
         }
     });
@@ -114,6 +118,7 @@ P.getLogs = function() {
     var logger = $("#loggerSearchBox").val().trim() || "all"; // If the value is "", send "all".
     var ts = $("#ts").val();
     var direction = P.direction;
+    var order = $("#sortOrder").val();
     
     $.ajax({
         method: "GET",
@@ -123,15 +128,16 @@ P.getLogs = function() {
             level: level,
             logger: logger,
             ts: encodeURI(ts),
-            direction: direction
+            direction: direction,
+            order: order
         }
     }).done(function(data) {
         // Success
         var messages = JSON.parse(data);
         
-        if(direction === "right") {
+        if($("#tail").is(":checked")) {
             // Messages are in asc order, but we want to view them desc.
-            messages.reverse();
+            //messages.reverse();
         }
         
         P.showLogs(messages);
