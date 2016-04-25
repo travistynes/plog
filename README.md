@@ -39,7 +39,7 @@ You can create any number of loggers with any name you choose. The log can then 
 The database file will be created at plog/plog.db in your application directory. If you want to configure the log directory, create plog.properties in your application root directory with this line:
 
 ```
-LOG_DIR=./my/log/path
+log.path=./my/log/path
 ```
 
 This would create the log file in your application directory at my/log/path/plog.db

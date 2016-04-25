@@ -49,7 +49,7 @@ public class PLog {
             is.close();
             
             // Set log directory from property file.
-            String dir = PLog.properties.getProperty("LOG_DIR");
+            String dir = PLog.properties.getProperty("log.path");
             if(dir != null) {
                 PLog.LOG_DIR = dir;
                 System.out.println("Using PLog.LOG_DIR=" + dir);
