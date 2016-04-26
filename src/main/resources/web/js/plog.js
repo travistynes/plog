@@ -129,6 +129,10 @@ P.getLogs = function() {
         to = a;
     }
     
+    // Set footer text.
+    $("#footer").removeClass("error_message");
+    $("#footer").text("Wait.");
+    
     $.ajax({
         method: "GET",
         url: "logs",
@@ -150,10 +154,15 @@ P.getLogs = function() {
             //messages.reverse();
         }
         
+        // Display the logs.
         P.showLogs(messages);
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        // Fail
         
+        // Display the current page in the footer.
+        $("#footer").text("Page: " + P.page);
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        // Fail. Display error message in the footer.
+        $("#footer").addClass("error_message");
+        $("#footer").text("Error requesting logs.");
     }).always(function() {
         // Complete (after done or fail). Schedule new request if tail is enabled.
         var tail = $("#tail").is(":checked");
