@@ -35,7 +35,7 @@ body {
     border-bottom: solid 1px #929292;
 }
 
-#options .pageBrowse {
+#options .pageButton {
     padding-left: 2px;
     padding-right: 2px;
     cursor: pointer;
@@ -46,12 +46,8 @@ body {
     border: 1px solid #636363;
 }
 
-/* There is no button currently. This example shows how to style <button id="submitButton">Submit</button> for reference. */
-#submitButton {
-    font-size: smaller;
-    background-color: #F1F1F1;
-    border-radius: 2px; /* rounded border */
-    border: solid 1px #000000;
+#options .pageButton_hover {
+    background-color: #C5C5C5;
 }
 
 #realtimeStatusbar {
@@ -59,7 +55,7 @@ body {
     text-align: center;
     font-size: small;
     font-weight: bold;
-    background-color: #AFFF7C;
+    background-color: #C4FF9F;
     border-bottom: solid 1px #929292;
     display: none; /* Hide initially */
 }
@@ -97,13 +93,8 @@ body {
 }
 
 #logTable td.ts {
-    cursor: pointer;
     color: #FFFFFF;
     background-color: #33444A;
-}
-
-#logTable td.ts_hover {
-    color: #0CE7FF;
 }
 
 #logTable td.info {
@@ -120,4 +111,12 @@ body {
 
 #logTable td.debug {
     background-color: #5BDCD0;
+}
+
+#logTable td.ts_highlight {
+    color: #F1EFA0;
+}
+
+#logTable td.highlight {
+    background-color: #EFEFEF;
 }

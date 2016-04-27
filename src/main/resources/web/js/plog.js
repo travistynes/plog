@@ -55,21 +55,33 @@ P.setup = function() {
         }
     });
     
-    // Setup timestamp search field.
-    $("#ts").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")); // Now.
-    $("#ts").keyup(function(e) {
-        if(e.keyCode === 13) {
-            // User pressed enter.
+    // Datepicker.
+    $("#dt").val($.datepicker.formatDate("yy-mm-dd", new Date())); // Today.
+    $("#dt").datepicker({
+        dateFormat: "yy-mm-dd",
+        defaultDate: new Date(),
+        autoClose: true,
+        onSelect: function(dt, picker) {
             P.optionChanged();
         }
     });
+    
+    // Time picker.
+    $("#ts").change(function() {
+        P.optionChanged();
+    });
+    
+    // Set the default timestamp selection for the initial load of "most recent" messages.
+    var now = moment().add(1, "hours");
+    $("#dt").val(now.format("YYYY-MM-DD"));
+    $("#ts").val(now.format("HH:00:00"));
     
     // Range selection.
     $("#range").change(function() {
         P.optionChanged();
     });
     
-    // Setup browse left/right buttons.
+    // Setup page buttons.
     $("#browseLeft").click(function() {
         if(P.page > 1) {
             // Decrease page number.
@@ -86,6 +98,16 @@ P.setup = function() {
         
         // Query the database.
         P.getLogs();
+    });
+    
+    // Page button hover.
+    $(".pageButton").hover(function() {
+        // Hover over.
+        $(this).addClass("pageButton_hover");
+    },
+    function() {
+        // Hover off.
+        $(this).removeClass("pageButton_hover");
     });
 };
 
@@ -109,7 +131,11 @@ P.getLogs = function() {
         P.page = 1;
         $("#sortOrder").val("DESC");
         $("#range").val("-1_hours");
-        $("#ts").val(moment(new Date()).format("YYYY-MM-DD HH:mm:ss.SSS")); // Now.
+        
+        // Set datepicker and timestamp field for a load of "most recent" messages.
+        var now = moment().add(1, "hours");
+        $("#dt").val(now.format("YYYY-MM-DD"));
+        $("#ts").val(now.format("HH:00:00"));
     }
     
     // Get selections.
@@ -120,7 +146,9 @@ P.getLogs = function() {
     // Set from, to timestamps.
     var range = $("#range").val().split("_");
     var amount = parseInt(range[0], 10);
-    var a = moment($("#ts").val());
+    
+    var a = moment($("#dt").val() + " " + $("#ts").val(), "YYYY-MM-DD HH:mm:ss");
+    
     var b = a.clone().add(amount, range[1]);
     var from = a;
     var to = b;
@@ -184,28 +212,23 @@ P.showLogs = function(messages) {
     // Add rows.
     for(var a = 0; a < messages.length; a++) {
         var m = messages[a];
-        var row = "<tr><td class='ts'>" + m.ts + "</td><td class='" + m.level + "'>" + m.level + "</td><td>" + m.logger + "</td><td class='message'>" + m.message + "</td></tr>";
+        var row = "<tr><td class='ts'>" + m.ts + "</td><td class='" + m.level + "'>" + m.level + "</td><td class='logger'>" + m.logger + "</td><td class='message'>" + m.message + "</td></tr>";
         
         t.append(row);
     }
     
-    // Setup timestamp column hover handlers.
-    $("#logTable tbody tr td.ts").hover(function() {
+    // Setup row hover handlers.
+    $("#logTable tbody tr").hover(function() {
         // Hover over.
-        $(this).addClass("ts_hover");
+        $(this).find(".ts").addClass("ts_highlight");
+        $(this).find(".logger").addClass("highlight");
+        $(this).find(".message").addClass("highlight");
     },
     function() {
         // Hover off.
-        $(this).removeClass("ts_hover");
-    });
-    // Setup timestamp column click handlers.
-    $("#logTable tbody tr td.ts").click(function() {
-        // Set the timestamp text field to the value of the selected timestamp.
-        var ts = $(this).text();
-        $("#ts").val(ts);
-        
-        // Submit.
-        P.optionChanged();
+        $(this).find(".ts").removeClass("ts_highlight");
+        $(this).find(".logger").removeClass("highlight");
+        $(this).find(".message").removeClass("highlight");
     });
 };
 

@@ -4,10 +4,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     
     <!-- Link in stylesheets -->
+    <link rel="stylesheet" type="text/css" href="js/jquery-ui-1.11.4.custom/jquery-ui.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
     
     <!-- Link scripts -->
     <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/moment.min.js"></script>
     <script type="text/javascript" src="js/plog.js"></script>
 </head>
@@ -28,8 +30,17 @@
             <option value="DESC" selected>DESC</option>
         </select>
         <span style="white-space: pre;">   |   </span>
-        <button id="browseLeft" class="pageBrowse"><<</button>
-        <input id="ts" type="text" maxlength="23" size="23" placeholder="Now" />
+        <input id="dt" type="text" maxlength="10" size="10" />
+        <select id="ts">
+            <option value="00:00:00" selected>12 am</option><option value="01:00:00">1 am</option><option value="02:00:00">2 am</option>
+            <option value="03:00:00">3 am</option><option value="04:00:00">4 am</option><option value="05:00:00">5 am</option>
+            <option value="06:00:00">6 am</option><option value="07:00:00">7 am</option><option value="08:00:00">8 am</option>
+            <option value="09:00:00">9 am</option><option value="10:00:00">10 am</option><option value="11:00:00">11 am</option>
+            <option value="12:00:00">12 pm</option><option value="13:00:00">1 pm</option><option value="14:00:00">2 pm</option>
+            <option value="15:00:00">3 pm</option><option value="16:00:00">4 pm</option><option value="17:00:00">5 pm</option>
+            <option value="18:00:00">6 pm</option><option value="19:00:00">7 pm</option><option value="20:00:00">8 pm</option>
+            <option value="21:00:00">9 pm</option><option value="22:00:00">10 pm</option><option value="23:00:00">11 pm</option>
+        </select>
         <select id="range">
             <option value="-1_days">-1 day</option>
             <option value="-6_hours">-6 hours</option>
@@ -40,7 +51,8 @@
             <option value="6_hours">+6 hours</option>
             <option value="1_days">+1 day</option>
         </select>
-        <button id="browseRight" class="pageBrowse">>></button>
+        <button id="browseLeft" class="pageButton" title="Previous page"><<</button>
+        <button id="browseRight" class="pageButton" title="Next page">>></button>
         <span style="white-space: pre;">   |   </span>
         Real time<input id="tail" type="checkbox">
     </div>
@@ -51,10 +63,10 @@
                 <tr><th>Time</th><th>Level</th><th>Logger</th><th>Message</th></tr>
             </thead>
             <tbody>
-                <tr><td class="ts">2016-04-20 7:16:43.299 AM</td><td class="INFO">INFO</td><td>main</td><td class="message">plog.PLog.main(PLog.java:79) - Message 2</td></tr>
-                <tr><td class="ts">2016-04-20 7:15:02.835 AM</td><td class="WARN">WARN</td><td>main</td><td class="message">plog.PLog.main(PLog.java:77) - Warning, this is message 75</td></tr>
-                <tr><td class="ts">2016-04-20 7:14:57.849 AM</td><td class="DEBUG">DEBUG</td><td>main</td><td class="message">plog.PLog.main(PLog.java:69) - Message 73. This is a debug log message.</td></tr>
-                <tr><td class="ts">2016-04-20 7:15:15.361 AM</td><td class="ERROR">ERROR</td><td>trace</td><td class="message">plog.PLog.main(PLog.java:74) - Message 80. Error!
+                <tr><td class="ts">2016-04-20 7:16:43.299 AM</td><td class="INFO">INFO</td><td class="logger">main</td><td class="message">plog.PLog.main(PLog.java:79) - Message 2</td></tr>
+                <tr><td class="ts">2016-04-20 7:15:02.835 AM</td><td class="WARN">WARN</td><td class="logger">main</td><td class="message">plog.PLog.main(PLog.java:77) - Warning, this is message 75</td></tr>
+                <tr><td class="ts">2016-04-20 7:14:57.849 AM</td><td class="DEBUG">DEBUG</td><td class="logger">main</td><td class="message">plog.PLog.main(PLog.java:69) - Message 73. This is a debug log message.</td></tr>
+                <tr><td class="ts">2016-04-20 7:15:15.361 AM</td><td class="ERROR">ERROR</td><td class="logger">trace</td><td class="message">plog.PLog.main(PLog.java:74) - Message 80. Error!
   java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
     java.lang.Integer.parseInt(Integer.java:447)
       plog.PLog.main(PLog.java:72)</td></tr>
