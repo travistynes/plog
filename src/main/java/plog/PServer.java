@@ -11,6 +11,7 @@ import com.sun.net.httpserver.Headers;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import java.util.Calendar;
 import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,6 +103,15 @@ public class PServer {
                             // Get logs.
                             List<Message> messages = getLogs(query);
                             String json = new Gson().toJson(messages);
+                            IOUtils.write(json, out, "UTF-8");
+                        } else if(rel.equals("logs/summary")) {
+                            // Request for log summary.
+                            headers.set("content-type", "text/JSON; charset=utf-8");
+                            exchange.sendResponseHeaders(responseCode, responseLength);
+                            
+                            // Get logs.
+                            Map<String, Integer> summary = getLogSummary();
+                            String json = new Gson().toJson(summary);
                             IOUtils.write(json, out, "UTF-8");
                         } else {
                             // Some other resource requested. Look for it in the web directory and send it, if it exists.
@@ -220,6 +230,56 @@ public class PServer {
             }
             
             return messages;
+        } catch(Exception e) {
+            System.out.println(e);
+            throw new RuntimeException(e);
+        } finally {
+            // Cleanup.
+            try { if(rs != null) rs.close(); } catch (SQLException e) {}
+            try { if(s != null) s.close(); } catch(SQLException e) {}
+            try { if(c != null) c.close(); } catch(SQLException e) {}
+        }
+    }
+    
+    /*
+    Returns a summary of the log table: the count of messages for each day.
+    */
+    private Map<String, Integer> getLogSummary() {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        df.setTimeZone(TimeZone.getDefault());
+        
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        
+        /*
+        // Create a list of the past n days.
+        Calendar day = Calendar.getInstance(); // now
+        for(int a = 0; a < 30; a++) {
+            map.put(df.format(day.getTime()), 0);
+            day.add(Calendar.DATE, -1); // Subtract 1 day.
+        }*/
+        
+        Connection c = null;
+        PreparedStatement s = null;
+        ResultSet rs = null;
+        
+        try {
+            c = PLog.GetLogConnection();
+            
+            // Query statement.
+            String sql = "select strftime('%Y-%m-%d', ts, 'localtime') dt, count(*) c from log group by dt order by dt desc limit 30";
+            s = c.prepareStatement(sql);
+            
+            // Submit query.
+            rs = s.executeQuery();
+            
+            while(rs.next()) {
+                String dt = rs.getString("dt");
+                int count = rs.getInt("c");
+                
+                map.put(dt, count);
+            }
+            
+            return map;
         } catch(Exception e) {
             System.out.println(e);
             throw new RuntimeException(e);

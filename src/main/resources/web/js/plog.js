@@ -1,5 +1,10 @@
 // Global namespace object.
-var P = {};
+var P = {
+    environment: {
+        dev: 0, live: 1
+    },
+    env: undefined
+};
 P.page = 1;
 
 // Called on window load.
@@ -11,14 +16,38 @@ P.load = function() {
 };
 
 P.setup = function() {
-    // If the hostname is not "", it is running on a server. Clear the sample/test rows.
-    if(location.hostname !== "") {
+    P.setEnvironment();
+    
+    if(P.env === P.environment.live) {
+        // Clear the sample/test rows.
         $("#logTable tbody tr").remove();
     }
     
     // Show the log table. It's hidden so the above test rows aren't visible briefly on page load.
     $("#logTable").show();
     
+    // Setup user option controls.
+    P.setupUserOptions();
+    
+    // Setup browser / summary table.
+    P.setupBrowser();
+};
+
+// Determine and set environment.
+P.setEnvironment = function() {
+    if(location.hostname === "") {
+        // Local browser, not hosted from server.
+        P.env = P.environment.dev;
+        console.log("Environment: dev");
+    } else {
+        // Hosted.
+        P.env = P.environment.live;
+        console.log("Environment: live, Host: " + location.hostname);
+    }
+};
+
+// Sets up user option controls.
+P.setupUserOptions = function() {
     // Setup log level radio button change handler.
     $("#options input[type='radio'][name='log_level']").change(function() {
         // A log level radio button was clicked.
@@ -229,6 +258,120 @@ P.showLogs = function(messages) {
         $(this).find(".ts").removeClass("ts_highlight");
         $(this).find(".logger").removeClass("highlight");
         $(this).find(".message").removeClass("highlight");
+    });
+};
+
+// Setup the browser / summary table.
+P.setupBrowser = function() {
+    if(P.env === P.environment.dev) {
+        // Use sample summary data.
+        var map = {};
+        var day = moment();
+        for(var a = 0; a < 30; a++) {
+            var dt = day.format("YYYY-MM-DD");
+            var r = Math.random();
+            var count = 0;
+            
+            if(r > .5) { count = 5; }
+            if(r > .7) { count = 15; }
+            if(r > .8) { count = 200; }
+            if(r > .9) { count = 1500; }
+            
+            map[dt] = count;
+            day.add(-1, "days");
+        }
+        
+        P.showSummary(map);
+    } else {
+        // Get summary from server.
+        P.requestSummary();
+    }
+};
+
+// Requests logs based on user selections.
+P.requestSummary = function() {
+    // Make request.
+    $.ajax({
+        method: "GET",
+        url: "logs/summary",
+        timeout: 15000,
+        data: {
+            
+        }
+    }).done(function(data) {
+        // Success
+        var summary = JSON.parse(data);
+        
+        // Display the summary.
+        P.showSummary(summary);
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        // Fail.
+    }).always(function() {
+        // Complete (after done or fail).
+    });
+};
+
+P.showSummary = function(map) {
+    var t = $("#browserTable tbody");
+    
+    // Remove existing rows.
+    t.find("tr").remove();
+    
+    // Create list of past n days to act as keys into the map.
+    var days = [];
+    var day = moment();
+    for(var a = 0; a < 30; a++) {
+        var dt = day.format("YYYY-MM-DD");
+        days.push(dt);
+        day.add(-1, "days");
+    }
+    
+    days.reverse(); // Order ascending
+    
+    // Add cells.
+    var html = "<tr>";
+    for(var a = 0; a < days.length; a++) {
+        var dt = days[a];
+        var count = map[dt] || 0;
+        
+        var m = moment(dt, "YYYY-MM-DD");
+        var title = m.format("MMM D") + ": " + count + " rows";
+        
+        var cls = "count_zero";
+        if(count > 0) { cls = "over_zero"; }
+        if(count > 10) { cls = "over_ten"; }
+        if(count > 100) { cls = "over_hundred"; }
+        if(count > 1000) { cls = "over_thousand"; }
+        
+        var cell = "<td class='" + cls + "' data-dt='" + dt + "' data-count='" + count + "' title='" + title + "'></td>";
+        
+        html += cell;
+    }
+    html += "</tr>";
+    t.append(html);
+    
+    // Setup cell hover handler.
+    $("#browserTable tbody tr td").hover(function() {
+        // Hover over.
+        $(this).addClass("summary_cell_highlight");
+    },
+    function() {
+        // Hover off.
+        $(this).removeClass("summary_cell_highlight");
+    });
+    
+    // Setup cell click handler.
+    $("#browserTable tbody tr td").click(function() {
+        var dt = $(this).attr("data-dt");
+        var count = $(this).attr("data-count");
+        
+        // Set search options to select records on the clicked day.
+        $("#dt").val(dt);
+        $("#ts").val("00:00:00");
+        $("#range").val("1_days");
+        
+        // Request logs.
+        P.optionChanged();
     });
 };
 
